@@ -168,38 +168,16 @@ h1{cursor:pointer}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes splashOut{to{opacity:0;visibility:hidden}}
 body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-delay:calc(var(--intro-delay,.65s) + min(var(--i,0),8) * 50ms)}
-/* ジャケットのマス目（4列×7段） */
-.splash.jackets{background:#000;overflow:hidden;animation:splashOut .5s ease 3.1s forwards}
-.jgrid{--cell:min(calc((100vw - 12px) / 4), calc((100vh - 40px) / 7));display:grid;grid-template-columns:repeat(4,var(--cell));grid-auto-rows:var(--cell);gap:4px;animation:gridDim .8s ease 2.1s both}
+/* ジャケットのマス目（4列×7段）: ピントが合うように1枚ずつ現れる */
+.splash.jackets{background:#000;overflow:hidden;animation:splashOut .5s ease 3.3s forwards}
+.jgrid{--cell:min(calc((100vw - 12px) / 4), calc((100vh - 40px) / 7));display:grid;grid-template-columns:repeat(4,var(--cell));grid-auto-rows:var(--cell);gap:4px;animation:gridDim .7s ease 1.3s both,gridOut .5s ease 2.8s forwards}
 @keyframes gridDim{to{filter:brightness(.42)}}
-.jt{background:#111 center/cover no-repeat;border-radius:3px;opacity:0;transform:scale(.6);animation:tileIn .5s cubic-bezier(.2,.8,.3,1.1) both}
-@keyframes tileIn{to{opacity:1;transform:none}}
-@font-face{font-family:'Comfortaa';src:url(fonts/comfortaa-400-latin.woff2) format('woff2');font-weight:400;font-style:normal;font-display:block}
-/* orbit の文字はマス目の中央に重ねる */
-.jlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#fff;font-family:'Comfortaa',-apple-system,sans-serif;font-size:34px;font-weight:400;letter-spacing:.3em;padding-left:.3em;text-shadow:0 2px 18px rgba(0,0,0,.85),0 0 4px rgba(0,0,0,.6);animation:fadeUp .6s ease 2.3s both}
-/* 案ごとの現れ方 */
-.js-stars .jt{animation-name:twinkle;animation-duration:.6s}
-@keyframes twinkle{0%{opacity:0;transform:scale(.3);filter:brightness(3)}60%{opacity:1;transform:scale(1.08);filter:brightness(1.6)}100%{opacity:1;transform:none;filter:none}}
-.js-spiral .jt{animation-name:orbitIn;animation-duration:.6s}
-@keyframes orbitIn{from{opacity:0;transform:rotate(-120deg) scale(.3)}to{opacity:1;transform:none}}
-.js-flip .jgrid{perspective:800px}
-.js-flip .jt{animation-name:flipIn;animation-duration:.55s;backface-visibility:hidden}
-@keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}40%{opacity:1}to{opacity:1;transform:none}}
-.js-zoom .jt,.js-orbit .jt,.js-bang .jt,.js-meteor .jt{opacity:1;transform:none;animation:none}
-.js-focus .jt{animation-name:focusIn;animation-duration:1s;animation-timing-function:ease-out}
-/* orbit の出し方の案 */
-.lt-a .jt,.lt-d .jt{animation-duration:.8s}
-.lt-a .jgrid{animation-delay:1.3s}
-.lt-a .jlabel,.lt-d .jlabel{animation-delay:1.5s}
-.lt-b .jlabel{animation:labelFocus 2.7s ease-out .2s both}
-@keyframes labelFocus{0%{opacity:0;filter:blur(18px);transform:scale(1.15)}35%{opacity:.55}100%{opacity:1;filter:none;transform:none}}
-.lt-c .jlabel{animation-delay:2.1s}
-.lt-c .jgrid{animation:gridDim .8s ease 2.1s both,gridOut .5s ease 2.8s forwards}
-.lt-d .jgrid{animation:gridDim .7s ease 1.3s both,gridOut .5s ease 2.8s forwards}
 @keyframes gridOut{to{opacity:0}}
-.splash.jackets.lt-c,.splash.jackets.lt-d{animation:splashOut .5s ease 3.3s forwards}
+.jt{background:#111 center/cover no-repeat;border-radius:3px;animation:focusIn .8s ease-out both}
 @keyframes focusIn{from{opacity:0;transform:scale(1.25);filter:blur(14px) brightness(.4)}50%{opacity:1}to{opacity:1;transform:none;filter:none}}
-.js-zoom .jgrid{will-change:transform}
+@font-face{font-family:'Comfortaa';src:url(fonts/comfortaa-400-latin.woff2) format('woff2');font-weight:400;font-style:normal;font-display:block}
+/* orbit の文字: マス目の中央に重ね、ジャケットが消えたあとも少し残る */
+.jlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#fff;font-family:'Comfortaa',-apple-system,sans-serif;font-size:34px;font-weight:400;letter-spacing:.3em;padding-left:.3em;text-shadow:0 2px 18px rgba(0,0,0,.85),0 0 4px rgba(0,0,0,.6);animation:fadeUp .6s ease 1.5s both}
 @media (prefers-reduced-motion: reduce){.splash{display:none}body.intro .stat,body.intro .show{animation:none}}
 </style>
 </head>
@@ -214,111 +192,27 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
   var jk = window.__jackets || JSON.parse(localStorage.getItem('pocket-notes:jackets') || 'null');
   if(Array.isArray(jk) && jk.length){
     var COLS = 4, ROWS = 7, N = COLS * ROWS;
-    var STYLES = ['wave', 'stars', 'spiral', 'flip', 'zoom', 'orbit', 'bang', 'meteor', 'focus', 'history'];
-    var WAAPI = {orbit: 1, bang: 1, meteor: 1};
-    var style = window.__jacketStyle || localStorage.getItem('pocket-notes:jacketStyle') || 'focus';
-    if(style === 'random') style = STYLES[Math.floor(Math.random() * STYLES.length)];
-    if(STYLES.indexOf(style) < 0) style = 'focus';
-
     var shuffle = function(a){ for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+    // 毎回ランダムに並べる（足りないマスは重複で埋める）
     var pool = shuffle(jk.slice()).slice(0, N);
     var extra = shuffle(jk.slice());
-    for(var k = 0; pool.length < N; k++) pool.push(extra[k % extra.length]);   // 足りないマスは重複で埋める
+    for(var k = 0; pool.length < N; k++) pool.push(extra[k % extra.length]);
     pool = shuffle(pool);
-    if(style === 'history') pool = jk.slice(0, N).concat(extra).slice(0, N);   // 発売順（ファイル名順）に並べる
-
-    // 各マスが何番目に現れるか
-    var cells = []; for(var i = 0; i < N; i++) cells.push(i);
-    var rc = function(i){ return [Math.floor(i / COLS), i % COLS]; };
-    var order;
-    if(style === 'wave'){          // 左上から斜めの波
-      order = cells.slice().sort(function(a, b){ var A = rc(a), B = rc(b); return (A[0] + A[1]) - (B[0] + B[1]) || A[0] - B[0]; });
-    } else if(style === 'stars' || style === 'focus' || style === 'bang'){  // ランダムな順番
-      order = shuffle(cells.slice());
-    } else if(style === 'meteor'){ // 右上から
-      order = cells.slice().sort(function(a, b){ var A = rc(a), B = rc(b); return (A[0] - A[1]) - (B[0] - B[1]) || A[0] - B[0]; });
-    } else if(style === 'orbit'){  // 円周上の順番
-      order = cells.slice();
-    } else if(style === 'spiral'){ // 中心から外へ渦を巻くように
-      var sp0 = [], top = 0, bot = ROWS - 1, lef = 0, rig = COLS - 1;
-      while(top <= bot && lef <= rig){
-        for(var c = lef; c <= rig; c++) sp0.push(top * COLS + c); top++;
-        for(var r = top; r <= bot; r++) sp0.push(r * COLS + rig); rig--;
-        if(top <= bot){ for(var c2 = rig; c2 >= lef; c2--) sp0.push(bot * COLS + c2); bot--; }
-        if(lef <= rig){ for(var r2 = bot; r2 >= top; r2--) sp0.push(r2 * COLS + lef); lef++; }
-      }
-      order = sp0.reverse();
-    } else {                       // flip / zoom: 上の段から順番に
-      order = cells.slice();
-    }
-    var rank = []; order.forEach(function(cell, r){ rank[cell] = r; });
-    var LT = window.__labelTiming || localStorage.getItem('pocket-notes:labelTiming') || 'd';   // orbit の出し方
-    var fast = LT === 'a' || LT === 'd';
-    var STEP = style === 'flip' ? 70 : style === 'focus' ? (fast ? 40 : 65) : (fast ? 50 : 80);
-
+    // 現れる順番もランダム
+    var order = []; for(var i = 0; i < N; i++) order.push(i);
+    order = shuffle(order);
     var grid = document.createElement('div'); grid.className = 'jgrid';
     for(var n = 0; n < N; n++){
       var t = document.createElement('div'); t.className = 'jt';
       t.style.backgroundImage = 'url("' + pool[n] + '")';
-      if(style !== 'zoom' && !WAAPI[style]) t.style.animationDelay = (100 + rank[n] * STEP) + 'ms';
+      t.style.animationDelay = (100 + order[n] * 40) + 'ms';
       grid.appendChild(t);
     }
     var label = document.createElement('div'); label.className = 'jlabel';
     try{ label.textContent = (JSON.parse(localStorage.getItem('pocket-notes:about') || '{}').name) || 'orbit'; }catch(e){ label.textContent = 'orbit'; }
     sp.innerHTML = ''; sp.appendChild(grid); sp.appendChild(label);
-    sp.classList.add('jackets', 'js-' + style, 'lt-' + LT);
-
-    if(style === 'zoom'){
-      // 1枚を画面いっぱいに映してから、引いていくと全体のマス目が見える
-      var pick = grid.children[Math.floor(Math.random() * N)];
-      var g = grid.getBoundingClientRect(), b = pick.getBoundingClientRect();
-      var S = Math.min(window.innerWidth, window.innerHeight) * 0.92 / b.width;
-      var dx = (b.left + b.width / 2) - (g.left + g.width / 2), dy = (b.top + b.height / 2) - (g.top + g.height / 2);
-      grid.animate([
-        {transform: 'translate(' + (-dx * S) + 'px,' + (-dy * S) + 'px) scale(' + S + ')'},
-        {transform: 'translate(' + (-dx * S) + 'px,' + (-dy * S) + 'px) scale(' + S + ')', offset: 0.18},
-        {transform: 'none'}
-      ], {duration: 2700, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'both'});
-    }
-    if(WAAPI[style]){
-      var G = grid.getBoundingClientRect(), cx = G.left + G.width / 2, cy = G.top + G.height / 2;
-      var R = Math.min(window.innerWidth, window.innerHeight) * 0.36;
-      Array.prototype.forEach.call(grid.children, function(el, n){
-        var b = el.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
-        var frames, opt;
-        if(style === 'orbit'){
-          // 中心の周りを公転してから、自分のマスに収まる
-          var th = rank[n] / N * Math.PI * 2;
-          frames = [];
-          for(var k = 0; k <= 8; k++){
-            var a = th + k / 8 * Math.PI * 0.9;
-            frames.push({transform: 'translate(' + (cx + Math.cos(a) * R - x) + 'px,' + (cy + Math.sin(a) * R * 0.55 - y) + 'px) scale(.42)', opacity: k === 0 ? 0 : 1, offset: k / 8 * 0.62});
-          }
-          frames.push({transform: 'none', opacity: 1, offset: 1});
-          opt = {duration: 2300, delay: 100 + rank[n] * 18, easing: 'linear', fill: 'both'};
-        } else if(style === 'bang'){
-          // 中心の一点から一斉に飛び散ってマスに収まる
-          frames = [
-            {transform: 'translate(' + (cx - x) + 'px,' + (cy - y) + 'px) scale(.1)', opacity: 0},
-            {transform: 'translate(' + (cx - x) + 'px,' + (cy - y) + 'px) scale(.1)', opacity: 1, offset: 0.05},
-            {transform: 'none', opacity: 1}
-          ];
-          opt = {duration: 1500, delay: 500 + rank[n] * 25, easing: 'cubic-bezier(.15,.85,.25,1.05)', fill: 'both'};
-        } else {
-          // 流れ星のように右上から斜めに飛び込んでくる
-          var D = Math.max(window.innerWidth, window.innerHeight);
-          frames = [
-            {transform: 'translate(' + D * 0.7 + 'px,' + (-D * 0.7) + 'px) rotate(25deg) scale(.5)', opacity: 0, filter: 'blur(6px) brightness(2)'},
-            {opacity: 1, offset: 0.3},
-            {transform: 'none', opacity: 1, filter: 'none'}
-          ];
-          opt = {duration: 800, delay: 100 + rank[n] * 70, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both'};
-        }
-        el.animate(frames, opt);
-      });
-    }
-    var late = LT === 'c' || LT === 'd';
-    document.body.style.setProperty('--intro-delay', late ? '3.8s' : '3.6s'); window.__introMs = late ? 3800 : 3600;
+    sp.classList.add('jackets');
+    document.body.style.setProperty('--intro-delay', '3.8s'); window.__introMs = 3800;
     return;
   }
 }catch(e){} })();
@@ -409,7 +303,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 15</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 16</p>
   </div>
 </div>
 
