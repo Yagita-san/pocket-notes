@@ -191,7 +191,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 </style>
 </head>
 <body class="intro">
-<div class="splash" id="splash"><img src="icon-180.png" alt=""><span>pocket-notes</span></div>
+<div class="splash" id="splash"><img src="icon-180.png" alt=""><span>orbit</span></div>
 <script>
 // 起動画面: ジャケット（iPhone 内に保存）があればマス目、なければアイコン
 (function(){ try{
@@ -249,7 +249,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
       grid.appendChild(t);
     }
     var label = document.createElement('div'); label.className = 'jlabel';
-    try{ label.textContent = (JSON.parse(localStorage.getItem('pocket-notes:about') || '{}').name) || ''; }catch(e){}
+    try{ label.textContent = (JSON.parse(localStorage.getItem('pocket-notes:about') || '{}').name) || 'orbit'; }catch(e){ label.textContent = 'orbit'; }
     sp.innerHTML = ''; sp.appendChild(grid); sp.appendChild(label);
     sp.classList.add('jackets', 'js-' + style);
 
@@ -310,7 +310,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 <div class="wrap">
   <div class="top">
   <header>
-    <h1 id="appName">pocket-notes</h1>
+    <h1 id="appName">orbit</h1>
     <div class="hbtns">
       <button class="iconbtn add" id="addBtn" aria-label="公演を追加">＋</button>
       <button class="iconbtn" id="menuBtn" aria-label="メニュー">⋯</button>
@@ -393,7 +393,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 11</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 12</p>
   </div>
 </div>
 
@@ -411,7 +411,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     </div>
     <form id="aboutForm" hidden autocomplete="off">
       <h3>名前の由来を編集</h3>
-      <label class="f"><span>アプリ名（画面上部に表示）</span><input name="name" placeholder="pocket-notes"></label>
+      <label class="f"><span>アプリ名（画面上部と起動画面に表示）</span><input name="name" placeholder="orbit"></label>
       <label class="f"><span>由来・想い</span><textarea name="text" class="long"></textarea></label>
       <p class="note">ここに書いた内容は、この iPhone の中とバックアップファイルにだけ保存されます。</p>
       <div class="sheet-foot">
@@ -732,10 +732,10 @@ function setAbout(a){
   catch(e){ toast('保存に失敗しました'); }
   applyAppName();
 }
-function applyAppName(){ $('#appName').textContent = getAbout().name || 'pocket-notes'; }
+function applyAppName(){ $('#appName').textContent = getAbout().name || 'orbit'; }
 function showAboutView(){
   const a = getAbout();
-  $('#aboutName').textContent = a.name || 'pocket-notes';
+  $('#aboutName').textContent = a.name || 'orbit';
   const t = $('#aboutText');
   t.textContent = a.text || 'まだ書かれていません。\n「編集」から、名前に込めた想いを残せます。';
   t.classList.toggle('empty', !a.text);
