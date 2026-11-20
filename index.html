@@ -106,6 +106,14 @@ label.f>span{display:block;font-size:12px;color:var(--sub);font-weight:600;margi
 .sheet-foot{display:flex;justify-content:space-between;gap:8px;margin-top:8px}
 .menu-item{display:block;width:100%;text-align:left;border:none;background:var(--card);border-radius:12px;padding:14px;margin-bottom:8px;font-weight:600}
 .menu-item small{display:block;font-weight:400;color:var(--sub);font-size:12px}
+/* 名前の由来ページ */
+.about{min-height:70vh}
+.about-name{font-size:30px;font-weight:700;letter-spacing:.08em;text-align:center;margin:28px 0 4px}
+.about-sub{text-align:center;color:var(--sub);font-size:12px;letter-spacing:.2em;margin-bottom:28px}
+.about-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:2;font-size:15px;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;padding:0 4px}
+.about-text.empty{font-family:inherit;color:var(--sub);text-align:center;line-height:1.6}
+.about textarea.long{min-height:50vh;line-height:1.8}
+h1{cursor:pointer}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 .hbtns{display:flex;gap:8px}
@@ -142,7 +150,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 <div class="wrap">
   <div class="top">
   <header>
-    <h1>pocket-notes</h1>
+    <h1 id="appName">pocket-notes</h1>
     <div class="hbtns">
       <button class="iconbtn add" id="addBtn" aria-label="公演を追加">＋</button>
       <button class="iconbtn" id="menuBtn" aria-label="メニュー">⋯</button>
@@ -216,6 +224,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 <div class="sheet-bg" id="menuBg">
   <div class="sheet">
     <h3>メニュー</h3>
+    <button class="menu-item" id="aboutBtn">名前の由来<small>このアプリの名前に込めた想い</small></button>
     <button class="menu-item" id="exportBtn">バックアップを書き出す<small>JSONファイルとして保存（「ファイル」アプリなどへ）</small></button>
     <button class="menu-item" id="importBtn">バックアップから復元<small>今のデータは置き換わります</small></button>
     <input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
@@ -224,7 +233,33 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <input type="file" id="imgIn" accept="image/*" hidden>
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 7</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 8</p>
+  </div>
+</div>
+
+<!-- 名前の由来（中身は iPhone の中にだけ保存） -->
+<div class="sheet-bg" id="aboutBg">
+  <div class="sheet about">
+    <div id="aboutView">
+      <div class="about-name" id="aboutName"></div>
+      <div class="about-sub">ABOUT THE NAME</div>
+      <div class="about-text" id="aboutText"></div>
+      <div class="sheet-foot" style="margin-top:28px">
+        <button class="btn" id="aboutEdit">編集</button><span style="flex:1"></span>
+        <button class="btn ghost" id="aboutClose">閉じる</button>
+      </div>
+    </div>
+    <form id="aboutForm" hidden autocomplete="off">
+      <h3>名前の由来を編集</h3>
+      <label class="f"><span>アプリ名（画面上部に表示）</span><input name="name" placeholder="pocket-notes"></label>
+      <label class="f"><span>由来・想い</span><textarea name="text" class="long"></textarea></label>
+      <p class="note">ここに書いた内容は、この iPhone の中とバックアップファイルにだけ保存されます。</p>
+      <div class="sheet-foot">
+        <span style="flex:1"></span>
+        <button type="button" class="btn ghost" id="aboutCancel">キャンセル</button>
+        <button type="submit" class="btn primary">保存</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -490,7 +525,7 @@ $('#menuClose').addEventListener('click', () => closeSheet('#menuBg'));
 $('#menuBg').addEventListener('click', e => { if(e.target.id === 'menuBg') closeSheet('#menuBg'); });
 
 $('#exportBtn').addEventListener('click', async () => {
-  const json = JSON.stringify({app:'pocket-notes', version:1, exportedAt:new Date().toISOString(), shows}, null, 2);
+  const json = JSON.stringify({app:'pocket-notes', version:1, exportedAt:new Date().toISOString(), about:getAbout(), shows}, null, 2);
   const name = `pocket-notes-backup-${today()}.json`;
   const file = new File([json], name, {type:'application/json'});
   const done = () => { try{ localStorage.setItem(KEY_BK, today()); }catch(e){} showLastBackup(); };
@@ -533,6 +568,43 @@ $('#splashOff').addEventListener('click', () => {
   refreshSplashBtns(); toast('起動画像を外しました');
 });
 
+/* 名前の由来 */
+const KEY_ABOUT = 'pocket-notes:about';
+function getAbout(){
+  try{ const a = JSON.parse(localStorage.getItem(KEY_ABOUT) || '{}'); return {name:String(a.name || ''), text:String(a.text || '')}; }
+  catch(e){ return {name:'', text:''}; }
+}
+function setAbout(a){
+  try{ localStorage.setItem(KEY_ABOUT, JSON.stringify({name:String(a.name || '').trim(), text:String(a.text || '').trim()})); }
+  catch(e){ toast('保存に失敗しました'); }
+  applyAppName();
+}
+function applyAppName(){ $('#appName').textContent = getAbout().name || 'pocket-notes'; }
+function showAboutView(){
+  const a = getAbout();
+  $('#aboutName').textContent = a.name || 'pocket-notes';
+  const t = $('#aboutText');
+  t.textContent = a.text || 'まだ書かれていません。\n「編集」から、名前に込めた想いを残せます。';
+  t.classList.toggle('empty', !a.text);
+  $('#aboutView').hidden = false; $('#aboutForm').hidden = true;
+}
+function openAbout(){ showAboutView(); $('#aboutBg').classList.add('on'); document.body.style.overflow = 'hidden'; }
+$('#aboutBtn').addEventListener('click', () => { closeSheet('#menuBg'); openAbout(); });
+$('#appName').addEventListener('click', openAbout);
+$('#aboutClose').addEventListener('click', () => closeSheet('#aboutBg'));
+$('#aboutBg').addEventListener('click', e => { if(e.target.id === 'aboutBg') closeSheet('#aboutBg'); });
+$('#aboutEdit').addEventListener('click', () => {
+  const a = getAbout(), f = $('#aboutForm');
+  f.name.value = a.name; f.text.value = a.text;
+  $('#aboutView').hidden = true; f.hidden = false;
+});
+$('#aboutCancel').addEventListener('click', showAboutView);
+$('#aboutForm').addEventListener('submit', e => {
+  e.preventDefault(); const f = e.target;
+  setAbout({name:f.name.value, text:f.text.value}); showAboutView(); toast('保存しました');
+});
+applyAppName();
+
 $('#importBtn').addEventListener('click', () => { $('#fileIn').value = ''; $('#fileIn').click(); });
 $('#fileIn').addEventListener('change', async e => {
   const f = e.target.files[0]; if(!f) return;
@@ -543,6 +615,7 @@ $('#fileIn').addEventListener('change', async e => {
     const next = list.map(clean);
     if(!confirm(`${next.length}公演を読み込みます。今のデータ（${shows.length}公演）は置き換わります。よろしいですか？`)) return;
     shows = next; openShows.clear(); openSongs.clear();
+    if(d && d.about && typeof d.about === 'object') setAbout(d.about);
     save(); render(); closeSheet('#menuBg'); toast(`${next.length}公演を復元しました`);
   }catch(err){ toast('このファイルは読み込めませんでした'); }
 });
