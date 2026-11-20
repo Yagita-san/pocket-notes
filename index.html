@@ -303,7 +303,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 16</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 17</p>
   </div>
 </div>
 
@@ -315,21 +315,10 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
       <div class="about-sub">ABOUT THE NAME</div>
       <div class="about-text" id="aboutText"></div>
       <div class="sheet-foot" style="margin-top:28px">
-        <button class="btn" id="aboutEdit">編集</button><span style="flex:1"></span>
+        <span style="flex:1"></span>
         <button class="btn ghost" id="aboutClose">閉じる</button>
       </div>
     </div>
-    <form id="aboutForm" hidden autocomplete="off">
-      <h3>名前の由来を編集</h3>
-      <label class="f"><span>アプリ名（画面上部と起動画面に表示）</span><input name="name" placeholder="orbit"></label>
-      <label class="f"><span>由来・想い</span><textarea name="text" class="long"></textarea></label>
-      <p class="note">ここに書いた内容は、この iPhone の中とバックアップファイルにだけ保存されます。</p>
-      <div class="sheet-foot">
-        <span style="flex:1"></span>
-        <button type="button" class="btn ghost" id="aboutCancel">キャンセル</button>
-        <button type="submit" class="btn primary">保存</button>
-      </div>
-    </form>
   </div>
 </div>
 
@@ -619,6 +608,7 @@ $('#jacketIn').addEventListener('change', async e => {
   const f = e.target.files[0]; if(!f) return;
   try{
     const d = JSON.parse(await f.text());
+    if(d && d.kind === 'about' && d.about){ setAbout(d.about); closeSheet('#menuBg'); toast('「orbitについて」を更新しました'); return; }
     const imgs = (d && d.kind === 'jackets' && Array.isArray(d.images)) ? d.images.filter(x => typeof x === 'string' && x.startsWith('data:image/')) : [];
     if(!imgs.length) throw new Error('format');
     localStorage.setItem(KEY_JK, JSON.stringify(imgs));
@@ -647,25 +637,14 @@ function showAboutView(){
   const a = getAbout();
   $('#aboutName').textContent = a.name || 'orbit';
   const t = $('#aboutText');
-  t.textContent = a.text || 'まだ書かれていません。\n「編集」から、名前に込めた想いを残せます。';
+  t.textContent = a.text || 'まだ登録されていません。';
   t.classList.toggle('empty', !a.text);
-  $('#aboutView').hidden = false; $('#aboutForm').hidden = true;
 }
 function openAbout(){ showAboutView(); $('#aboutBg').classList.add('on'); document.body.style.overflow = 'hidden'; }
 $('#aboutBtn').addEventListener('click', () => { closeSheet('#menuBg'); openAbout(); });
 $('#appName').addEventListener('click', openAbout);
 $('#aboutClose').addEventListener('click', () => closeSheet('#aboutBg'));
 $('#aboutBg').addEventListener('click', e => { if(e.target.id === 'aboutBg') closeSheet('#aboutBg'); });
-$('#aboutEdit').addEventListener('click', () => {
-  const a = getAbout(), f = $('#aboutForm');
-  f.name.value = a.name; f.text.value = a.text;
-  $('#aboutView').hidden = true; f.hidden = false;
-});
-$('#aboutCancel').addEventListener('click', showAboutView);
-$('#aboutForm').addEventListener('submit', e => {
-  e.preventDefault(); const f = e.target;
-  setAbout({name:f.name.value, text:f.text.value}); showAboutView(); toast('保存しました');
-});
 applyAppName();
 
 $('#importBtn').addEventListener('click', () => { $('#fileIn').value = ''; $('#fileIn').click(); });
@@ -673,6 +652,7 @@ $('#fileIn').addEventListener('change', async e => {
   const f = e.target.files[0]; if(!f) return;
   try{
     const d = JSON.parse(await f.text());
+    if(d && d.kind === 'about' && d.about){ setAbout(d.about); closeSheet('#menuBg'); toast('「orbitについて」を更新しました'); return; }
     const list = Array.isArray(d) ? d : d.shows;
     if(!Array.isArray(list)) throw new Error('format');
     const next = list.map(clean);
