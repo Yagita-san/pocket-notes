@@ -31,7 +31,7 @@ html,body{margin:0;background:var(--bg);color:var(--text)}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
   font-size:16px;line-height:1.5;
-  padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom));
+  padding:env(safe-area-inset-top) 0 calc(144px + env(safe-area-inset-bottom));
 }
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -475,6 +475,7 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 /* 日付が変わったら予定→済みを更新 */
 document.addEventListener('visibilitychange', () => { if(!document.hidden) render(); });
 try{ navigator.storage?.persist?.(); }catch(e){}
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(() => {}); }
 
 window.__test = {parseSetlist, norm, splitVariant};
 render();
