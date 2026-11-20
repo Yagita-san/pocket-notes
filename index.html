@@ -116,12 +116,27 @@ label.f>span{display:block;font-size:12px;color:var(--sub);font-weight:600;margi
 @keyframes pop{from{opacity:0;transform:scale(.6) rotate(-8deg)}to{opacity:1;transform:none}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes splashOut{to{opacity:0;visibility:hidden}}
-body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-delay:calc(.65s + min(var(--i,0),8) * 50ms)}
+body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-delay:calc(var(--intro-delay,.65s) + min(var(--i,0),8) * 50ms)}
+/* 起動画像（iPhone内に保存した画像を4秒かけてフェードイン） */
+.splash.photo{background:#000;animation:splashOut .6s ease 4.6s forwards}
+.splash.photo img{width:100%;height:100%;object-fit:contain;border-radius:0;box-shadow:none;opacity:0;animation:photoIn 4s ease-in-out .1s forwards}
+.splash.photo span{display:none}
+@keyframes photoIn{to{opacity:1}}
 @media (prefers-reduced-motion: reduce){.splash{display:none}body.intro .stat,body.intro .show{animation:none}}
 </style>
 </head>
 <body class="intro">
 <div class="splash" id="splash"><img src="icon-180.png" alt=""><span>pocket-notes</span></div>
+<script>
+// 起動画像が iPhone 内に保存されていれば、アイコンの代わりに使う
+(function(){ try{
+  var src = localStorage.getItem('pocket-notes:splashImage');
+  if(src && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    var sp = document.getElementById('splash'); sp.classList.add('photo'); sp.querySelector('img').src = src;
+    document.body.style.setProperty('--intro-delay', '5s'); window.__introMs = 5000;
+  }
+}catch(e){} })();
+</script>
 <div class="wrap">
   <header>
     <h1>pocket-notes</h1>
@@ -200,9 +215,12 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <button class="menu-item" id="exportBtn">バックアップを書き出す<small>JSONファイルとして保存（「ファイル」アプリなどへ）</small></button>
     <button class="menu-item" id="importBtn">バックアップから復元<small>今のデータは置き換わります</small></button>
     <input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
+    <button class="menu-item" id="splashBtn">起動画像を設定<small>写真から選ぶと、起動時に4秒かけてフェードイン（この iPhone の中にだけ保存）</small></button>
+    <button class="menu-item" id="splashOff" hidden>起動画像を外す<small>元のアイコンのアニメーションに戻します</small></button>
+    <input type="file" id="imgIn" accept="image/*" hidden>
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 4</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 5</p>
   </div>
 </div>
 
@@ -319,7 +337,7 @@ function setNum(sel, v){
   const el = $(sel);
   if(!intro || v === 0){ el.textContent = v; return; }
   el.textContent = 0;
-  const start = performance.now() + 650, dur = 600;
+  const start = performance.now() + (window.__introMs || 650), dur = 600;
   const step = now => {
     const t = Math.min(1, Math.max(0, (now - start) / dur));
     el.textContent = Math.round(v * (1 - Math.pow(1 - t, 3)));
@@ -483,6 +501,34 @@ $('#exportBtn').addEventListener('click', async () => {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
   done();
 });
+/* 起動画像 */
+const KEY_IMG = 'pocket-notes:splashImage';
+function hasSplash(){ try{ return !!localStorage.getItem(KEY_IMG); }catch(e){ return false; } }
+function refreshSplashBtns(){ $('#splashOff').hidden = !hasSplash(); }
+$('#menuBtn').addEventListener('click', refreshSplashBtns);
+$('#splashBtn').addEventListener('click', () => { $('#imgIn').value = ''; $('#imgIn').click(); });
+$('#imgIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const url = URL.createObjectURL(f);
+    const img = await new Promise((ok, ng) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ng; i.src = url; });
+    // iPhone の画面サイズ程度に縮めて保存（容量節約）
+    const scale = Math.min(1, 1290 / img.naturalWidth, 2796 / img.naturalHeight);
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    let data = c.toDataURL('image/jpeg', 0.85);
+    if(data.length > 2_000_000) data = c.toDataURL('image/jpeg', 0.6);
+    localStorage.setItem(KEY_IMG, data);
+    refreshSplashBtns(); toast('起動画像を設定しました。次回の起動から表示されます');
+  }catch(err){ toast('この画像は設定できませんでした'); }
+});
+$('#splashOff').addEventListener('click', () => {
+  try{ localStorage.removeItem(KEY_IMG); }catch(e){}
+  refreshSplashBtns(); toast('起動画像を外しました');
+});
+
 $('#importBtn').addEventListener('click', () => { $('#fileIn').value = ''; $('#fileIn').click(); });
 $('#fileIn').addEventListener('change', async e => {
   const f = e.target.files[0]; if(!f) return;
@@ -508,7 +554,7 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').ca
 window.__test = {parseSetlist, norm, splitVariant};
 render();
 intro = false;
-setTimeout(endIntro, 1800);
+setTimeout(endIntro, (window.__introMs || 650) + 1200);
 $('#splash')?.addEventListener('click', endIntro);
 })();
 </script>
