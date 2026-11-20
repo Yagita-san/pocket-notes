@@ -6,28 +6,69 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="pocket-notes">
-<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#17181b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#120f1f">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <title>pocket-notes</title>
 <style>
 :root{
-  --bg:#f6f5f2; --card:#ffffff; --text:#1d1d1f; --sub:#6e6e73; --line:#e3e1dc;
-  --accent:#2f6fde; --accent-soft:#e7effc; --future:#c2410c; --future-soft:#fdeee6;
-  --danger:#d92d20; --shadow:0 1px 2px rgba(0,0,0,.06);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#17181b; --card:#222327; --text:#f2f2f4; --sub:#9a9aa1; --line:#34353a;
-    --accent:#6ea0ff; --accent-soft:#25324a; --future:#ff9a62; --future-soft:#3b2a20;
-    --danger:#ff6b5f; --shadow:none;
-  }
+  /* 配色: 星雲（紫×ミント、星空の背景） */
+  --bg:#120f1f; --card:rgba(29,25,48,.85); --text:#f1eefb; --sub:#a49cbf; --line:#2e2847;
+  --accent:#a78bfa; --accent-soft:#2c2547; --future:#5fe0c4; --future-soft:#163a36;
+  --danger:#ff7a8a; --on-accent:#140f24; --shadow:none;
+  --top-bg:rgba(18,15,31,.72);
+  --bg-image:
+    radial-gradient(1.5px 1.5px at 90% 46%,rgba(255,255,255,.5),transparent),
+    radial-gradient(2px 2px at 78% 65%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 76% 60%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 10% 13%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 36% 62%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 91% 87%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 10% 9%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 95% 91%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 41% 84%,rgba(255,255,255,.5),transparent),
+    radial-gradient(2px 2px at 75% 89%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 59% 38%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 93% 51%,rgba(255,255,255,.9),transparent),
+    radial-gradient(2px 2px at 87% 46%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 4% 61%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 47% 23%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 80% 16%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 65% 9%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1.5px 1.5px at 29% 38%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 18% 96%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 33% 52%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 52% 65%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 12% 23%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 59% 53%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 72% 37%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 19% 57%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 72% 37%,rgba(255,255,255,.9),transparent),
+    radial-gradient(2px 2px at 92% 55%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1.5px 1.5px at 47% 89%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 50% 31%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 21% 12%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 24% 21%,rgba(255,255,255,.9),transparent),
+    radial-gradient(2px 2px at 31% 86%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 31% 3%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 64% 77%,rgba(255,255,255,.5),transparent),
+    radial-gradient(2px 2px at 25% 35%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 38% 2%,rgba(255,255,255,.5),transparent),
+    radial-gradient(2px 2px at 20% 55%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 70% 49%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 80% 74%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1.5px 1.5px at 42% 18%,rgba(255,255,255,.7),transparent),
+    radial-gradient(ellipse 90% 55% at 85% 0%,rgba(167,139,250,.22),transparent 70%),
+    radial-gradient(ellipse 80% 50% at 0% 100%,rgba(95,224,196,.14),transparent 70%);
+  color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--text)}
+html{background:var(--bg)}
+body{margin:0;color:var(--text)}
+/* 背景（グラデーションや星を重ねられるように） */
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg);background-image:var(--bg-image);pointer-events:none}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
   font-size:16px;line-height:1.5;
@@ -37,7 +78,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 .wrap{max-width:640px;margin:0 auto;padding:0 16px}
 /* 上部（タイトル・ボタン・数字）を固定 */
-.top{position:sticky;top:0;z-index:4;background:var(--bg);margin:0 -16px;padding:env(safe-area-inset-top) 16px 0;border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:4;background:var(--top-bg);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);margin:0 -16px;padding:env(safe-area-inset-top) 16px 0;border-bottom:1px solid var(--line)}
 header{padding:16px 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 h1{font-size:22px;margin:0;letter-spacing:.02em}
 .iconbtn{border:none;background:var(--card);border-radius:999px;width:40px;height:40px;box-shadow:var(--shadow);font-size:18px;display:grid;place-items:center}
@@ -69,7 +110,7 @@ ol.sl li i{font-style:normal;color:var(--sub);font-variant-numeric:tabular-nums;
 .memo{margin-top:12px;font-size:14px;background:var(--bg);border-radius:10px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
 .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 .btn{border:none;border-radius:10px;padding:8px 14px;background:var(--accent-soft);color:var(--accent);font-weight:600}
-.btn.primary{background:var(--accent);color:#fff}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
 .btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
 .btn.danger.armed{background:var(--danger);color:#fff}
 .btn.ghost{background:transparent;color:var(--sub)}
@@ -86,7 +127,7 @@ ol.sl li i{font-style:normal;color:var(--sub);font-variant-numeric:tabular-nums;
 .song-body div{padding:4px 0;border-top:1px solid var(--line)}
 .song-body .sub{color:var(--sub);font-size:12px}
 
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--top-bg);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav.tabs button{flex:1;border:none;background:none;padding:10px 0 12px;font-size:13px;color:var(--sub);font-weight:600}
 nav.tabs button.on{color:var(--accent)}
 nav.tabs button span{display:block;font-size:20px;line-height:1.1}
@@ -117,7 +158,7 @@ h1{cursor:pointer}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 .hbtns{display:flex;gap:8px}
-.iconbtn.add{background:var(--accent);color:#fff;font-size:24px;line-height:1}
+.iconbtn.add{background:var(--accent);color:var(--on-accent);font-size:24px;line-height:1}
 [hidden]{display:none!important}
 /* 起動アニメーション */
 .splash{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;animation:splashOut .3s ease .6s forwards}
@@ -132,17 +173,145 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 .splash.photo img{width:100%;height:100%;object-fit:contain;border-radius:0;box-shadow:none;opacity:0;animation:photoIn 3s ease-in-out .1s forwards}
 .splash.photo span{display:none}
 @keyframes photoIn{to{opacity:1}}
+/* ジャケットのマス目（4列×7段） */
+.splash.jackets{background:#000;gap:20px;overflow:hidden;animation:splashOut .5s ease 3.1s forwards}
+.jgrid{--cell:min(calc((100vw - 28px) / 4), calc((100vh - 120px) / 7));display:grid;grid-template-columns:repeat(4,var(--cell));grid-auto-rows:var(--cell);gap:4px}
+.jt{background:#111 center/cover no-repeat;border-radius:3px;opacity:0;transform:scale(.6);animation:tileIn .5s cubic-bezier(.2,.8,.3,1.1) both}
+@keyframes tileIn{to{opacity:1;transform:none}}
+@font-face{font-family:'Comfortaa';src:url(fonts/comfortaa-400-latin.woff2) format('woff2');font-weight:400;font-style:normal;font-display:block}
+.jlabel{color:#fff;font-family:'Comfortaa',-apple-system,sans-serif;font-size:20px;font-weight:400;letter-spacing:.3em;padding-left:.3em;min-height:1em;animation:fadeUp .6s ease 2.3s both}
+/* 案ごとの現れ方 */
+.js-stars .jt{animation-name:twinkle;animation-duration:.6s}
+@keyframes twinkle{0%{opacity:0;transform:scale(.3);filter:brightness(3)}60%{opacity:1;transform:scale(1.08);filter:brightness(1.6)}100%{opacity:1;transform:none;filter:none}}
+.js-spiral .jt{animation-name:orbitIn;animation-duration:.6s}
+@keyframes orbitIn{from{opacity:0;transform:rotate(-120deg) scale(.3)}to{opacity:1;transform:none}}
+.js-flip .jgrid{perspective:800px}
+.js-flip .jt{animation-name:flipIn;animation-duration:.55s;backface-visibility:hidden}
+@keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}40%{opacity:1}to{opacity:1;transform:none}}
+.js-zoom .jt,.js-orbit .jt,.js-bang .jt,.js-meteor .jt{opacity:1;transform:none;animation:none}
+.js-focus .jt{animation-name:focusIn;animation-duration:1s;animation-timing-function:ease-out}
+@keyframes focusIn{from{opacity:0;transform:scale(1.25);filter:blur(14px) brightness(.4)}50%{opacity:1}to{opacity:1;transform:none;filter:none}}
+.js-zoom .jgrid{will-change:transform}
 @media (prefers-reduced-motion: reduce){.splash{display:none}body.intro .stat,body.intro .show{animation:none}}
 </style>
 </head>
 <body class="intro">
 <div class="splash" id="splash"><img src="icon-180.png" alt=""><span>pocket-notes</span></div>
 <script>
-// 起動画像が iPhone 内に保存されていれば、アイコンの代わりに使う
+// 起動画面: ジャケット（iPhone 内に保存）→ 1枚画像 → アイコン の順に使う
 (function(){ try{
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var sp = document.getElementById('splash');
+  var jk = window.__jackets || JSON.parse(localStorage.getItem('pocket-notes:jackets') || 'null');
+  if(Array.isArray(jk) && jk.length){
+    var COLS = 4, ROWS = 7, N = COLS * ROWS;
+    var STYLES = ['wave', 'stars', 'spiral', 'flip', 'zoom', 'orbit', 'bang', 'meteor', 'focus', 'history'];
+    var WAAPI = {orbit: 1, bang: 1, meteor: 1};
+    var style = window.__jacketStyle || localStorage.getItem('pocket-notes:jacketStyle') || 'focus';
+    if(style === 'random') style = STYLES[Math.floor(Math.random() * STYLES.length)];
+    if(STYLES.indexOf(style) < 0) style = 'focus';
+
+    var shuffle = function(a){ for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+    var pool = shuffle(jk.slice()).slice(0, N);
+    var extra = shuffle(jk.slice());
+    for(var k = 0; pool.length < N; k++) pool.push(extra[k % extra.length]);   // 足りないマスは重複で埋める
+    pool = shuffle(pool);
+    if(style === 'history') pool = jk.slice(0, N).concat(extra).slice(0, N);   // 発売順（ファイル名順）に並べる
+
+    // 各マスが何番目に現れるか
+    var cells = []; for(var i = 0; i < N; i++) cells.push(i);
+    var rc = function(i){ return [Math.floor(i / COLS), i % COLS]; };
+    var order;
+    if(style === 'wave'){          // 左上から斜めの波
+      order = cells.slice().sort(function(a, b){ var A = rc(a), B = rc(b); return (A[0] + A[1]) - (B[0] + B[1]) || A[0] - B[0]; });
+    } else if(style === 'stars' || style === 'focus' || style === 'bang'){  // ランダムな順番
+      order = shuffle(cells.slice());
+    } else if(style === 'meteor'){ // 右上から
+      order = cells.slice().sort(function(a, b){ var A = rc(a), B = rc(b); return (A[0] - A[1]) - (B[0] - B[1]) || A[0] - B[0]; });
+    } else if(style === 'orbit'){  // 円周上の順番
+      order = cells.slice();
+    } else if(style === 'spiral'){ // 中心から外へ渦を巻くように
+      var sp0 = [], top = 0, bot = ROWS - 1, lef = 0, rig = COLS - 1;
+      while(top <= bot && lef <= rig){
+        for(var c = lef; c <= rig; c++) sp0.push(top * COLS + c); top++;
+        for(var r = top; r <= bot; r++) sp0.push(r * COLS + rig); rig--;
+        if(top <= bot){ for(var c2 = rig; c2 >= lef; c2--) sp0.push(bot * COLS + c2); bot--; }
+        if(lef <= rig){ for(var r2 = bot; r2 >= top; r2--) sp0.push(r2 * COLS + lef); lef++; }
+      }
+      order = sp0.reverse();
+    } else {                       // flip / zoom: 上の段から順番に
+      order = cells.slice();
+    }
+    var rank = []; order.forEach(function(cell, r){ rank[cell] = r; });
+    var STEP = style === 'flip' ? 70 : style === 'focus' ? 65 : 80;
+
+    var grid = document.createElement('div'); grid.className = 'jgrid';
+    for(var n = 0; n < N; n++){
+      var t = document.createElement('div'); t.className = 'jt';
+      t.style.backgroundImage = 'url("' + pool[n] + '")';
+      if(style !== 'zoom' && !WAAPI[style]) t.style.animationDelay = (100 + rank[n] * STEP) + 'ms';
+      grid.appendChild(t);
+    }
+    var label = document.createElement('div'); label.className = 'jlabel';
+    try{ label.textContent = (JSON.parse(localStorage.getItem('pocket-notes:about') || '{}').name) || ''; }catch(e){}
+    sp.innerHTML = ''; sp.appendChild(grid); sp.appendChild(label);
+    sp.classList.add('jackets', 'js-' + style);
+
+    if(style === 'zoom'){
+      // 1枚を画面いっぱいに映してから、引いていくと全体のマス目が見える
+      var pick = grid.children[Math.floor(Math.random() * N)];
+      var g = grid.getBoundingClientRect(), b = pick.getBoundingClientRect();
+      var S = Math.min(window.innerWidth, window.innerHeight) * 0.92 / b.width;
+      var dx = (b.left + b.width / 2) - (g.left + g.width / 2), dy = (b.top + b.height / 2) - (g.top + g.height / 2);
+      grid.animate([
+        {transform: 'translate(' + (-dx * S) + 'px,' + (-dy * S) + 'px) scale(' + S + ')'},
+        {transform: 'translate(' + (-dx * S) + 'px,' + (-dy * S) + 'px) scale(' + S + ')', offset: 0.18},
+        {transform: 'none'}
+      ], {duration: 2700, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'both'});
+    }
+    if(WAAPI[style]){
+      var G = grid.getBoundingClientRect(), cx = G.left + G.width / 2, cy = G.top + G.height / 2;
+      var R = Math.min(window.innerWidth, window.innerHeight) * 0.36;
+      Array.prototype.forEach.call(grid.children, function(el, n){
+        var b = el.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+        var frames, opt;
+        if(style === 'orbit'){
+          // 中心の周りを公転してから、自分のマスに収まる
+          var th = rank[n] / N * Math.PI * 2;
+          frames = [];
+          for(var k = 0; k <= 8; k++){
+            var a = th + k / 8 * Math.PI * 0.9;
+            frames.push({transform: 'translate(' + (cx + Math.cos(a) * R - x) + 'px,' + (cy + Math.sin(a) * R * 0.55 - y) + 'px) scale(.42)', opacity: k === 0 ? 0 : 1, offset: k / 8 * 0.62});
+          }
+          frames.push({transform: 'none', opacity: 1, offset: 1});
+          opt = {duration: 2300, delay: 100 + rank[n] * 18, easing: 'linear', fill: 'both'};
+        } else if(style === 'bang'){
+          // 中心の一点から一斉に飛び散ってマスに収まる
+          frames = [
+            {transform: 'translate(' + (cx - x) + 'px,' + (cy - y) + 'px) scale(.1)', opacity: 0},
+            {transform: 'translate(' + (cx - x) + 'px,' + (cy - y) + 'px) scale(.1)', opacity: 1, offset: 0.05},
+            {transform: 'none', opacity: 1}
+          ];
+          opt = {duration: 1500, delay: 500 + rank[n] * 25, easing: 'cubic-bezier(.15,.85,.25,1.05)', fill: 'both'};
+        } else {
+          // 流れ星のように右上から斜めに飛び込んでくる
+          var D = Math.max(window.innerWidth, window.innerHeight);
+          frames = [
+            {transform: 'translate(' + D * 0.7 + 'px,' + (-D * 0.7) + 'px) rotate(25deg) scale(.5)', opacity: 0, filter: 'blur(6px) brightness(2)'},
+            {opacity: 1, offset: 0.3},
+            {transform: 'none', opacity: 1, filter: 'none'}
+          ];
+          opt = {duration: 800, delay: 100 + rank[n] * 70, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both'};
+        }
+        el.animate(frames, opt);
+      });
+    }
+    document.body.style.setProperty('--intro-delay', '3.6s'); window.__introMs = 3600;
+    return;
+  }
   var src = localStorage.getItem('pocket-notes:splashImage');
-  if(src && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){
-    var sp = document.getElementById('splash'); sp.classList.add('photo'); sp.querySelector('img').src = src;
+  if(src){
+    sp.classList.add('photo'); sp.querySelector('img').src = src;
     document.body.style.setProperty('--intro-delay', '4s'); window.__introMs = 4000;
   }
 }catch(e){} })();
@@ -229,11 +398,14 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
     <button class="menu-item" id="splashBtn">起動画像を設定<small>写真から選ぶと、起動時に3秒かけてフェードイン（この iPhone の中にだけ保存）</small></button>
     <button class="menu-item" id="splashOff" hidden>起動画像を外す<small>元のアイコンのアニメーションに戻します</small></button>
+    <button class="menu-item" id="jacketBtn">ジャケット画像を読み込む<small>専用ファイルを選ぶと、起動時にマス目で表示（この iPhone の中にだけ保存）</small></button>
+    <button class="menu-item" id="jacketOff" hidden>ジャケット画像を外す<small>起動画像（または元のアイコン）に戻します</small></button>
+    <input type="file" id="jacketIn" accept=".json,application/json,text/plain" hidden>
     <input type="file" id="imgIn" accept="image/*" hidden>
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 8</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 10</p>
   </div>
 </div>
 
@@ -543,7 +715,24 @@ $('#exportBtn').addEventListener('click', async () => {
 /* 起動画像 */
 const KEY_IMG = 'pocket-notes:splashImage';
 function hasSplash(){ try{ return !!localStorage.getItem(KEY_IMG); }catch(e){ return false; } }
-function refreshSplashBtns(){ $('#splashOff').hidden = !hasSplash(); }
+const KEY_JK = 'pocket-notes:jackets';
+function hasJackets(){ try{ return !!localStorage.getItem(KEY_JK); }catch(e){ return false; } }
+function refreshSplashBtns(){ $('#splashOff').hidden = !hasSplash(); $('#jacketOff').hidden = !hasJackets(); }
+$('#jacketBtn').addEventListener('click', () => { $('#jacketIn').value = ''; $('#jacketIn').click(); });
+$('#jacketIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const d = JSON.parse(await f.text());
+    const imgs = (d && d.kind === 'jackets' && Array.isArray(d.images)) ? d.images.filter(x => typeof x === 'string' && x.startsWith('data:image/')) : [];
+    if(!imgs.length) throw new Error('format');
+    localStorage.setItem(KEY_JK, JSON.stringify(imgs));
+    refreshSplashBtns(); toast(`ジャケット${imgs.length}枚を読み込みました。次回の起動から表示されます`);
+  }catch(err){ toast(err.name === 'QuotaExceededError' ? '容量が足りず保存できませんでした' : 'このファイルは読み込めませんでした'); }
+});
+$('#jacketOff').addEventListener('click', () => {
+  try{ localStorage.removeItem(KEY_JK); }catch(e){}
+  refreshSplashBtns(); toast('ジャケット画像を外しました');
+});
 $('#menuBtn').addEventListener('click', refreshSplashBtns);
 $('#splashBtn').addEventListener('click', () => { $('#imgIn').value = ''; $('#imgIn').click(); });
 $('#imgIn').addEventListener('change', async e => {
