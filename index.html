@@ -168,11 +168,6 @@ h1{cursor:pointer}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes splashOut{to{opacity:0;visibility:hidden}}
 body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-delay:calc(var(--intro-delay,.65s) + min(var(--i,0),8) * 50ms)}
-/* 起動画像（iPhone内に保存した画像を4秒かけてフェードイン） */
-.splash.photo{background:#000;animation:splashOut .6s ease 3.6s forwards}
-.splash.photo img{width:100%;height:100%;object-fit:contain;border-radius:0;box-shadow:none;opacity:0;animation:photoIn 3s ease-in-out .1s forwards}
-.splash.photo span{display:none}
-@keyframes photoIn{to{opacity:1}}
 /* ジャケットのマス目（4列×7段） */
 .splash.jackets{background:#000;gap:24px;overflow:hidden;padding-bottom:8vh;box-sizing:border-box;animation:splashOut .5s ease 3.1s forwards}
 .jgrid{--cell:min(calc((100vw - 48px) / 4), calc((100vh - 280px) / 7));display:grid;grid-template-columns:repeat(4,var(--cell));grid-auto-rows:var(--cell);gap:4px}
@@ -198,8 +193,9 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 <body class="intro">
 <div class="splash" id="splash"><img src="icon-180.png" alt=""><span>pocket-notes</span></div>
 <script>
-// 起動画面: ジャケット（iPhone 内に保存）→ 1枚画像 → アイコン の順に使う
+// 起動画面: ジャケット（iPhone 内に保存）があればマス目、なければアイコン
 (function(){ try{
+  localStorage.removeItem('pocket-notes:splashImage');   // 廃止した「起動画像（1枚）」の保存分を消す
   if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var sp = document.getElementById('splash');
   var jk = window.__jackets || JSON.parse(localStorage.getItem('pocket-notes:jackets') || 'null');
@@ -309,11 +305,6 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     document.body.style.setProperty('--intro-delay', '3.6s'); window.__introMs = 3600;
     return;
   }
-  var src = localStorage.getItem('pocket-notes:splashImage');
-  if(src){
-    sp.classList.add('photo'); sp.querySelector('img').src = src;
-    document.body.style.setProperty('--intro-delay', '4s'); window.__introMs = 4000;
-  }
 }catch(e){} })();
 </script>
 <div class="wrap">
@@ -396,16 +387,13 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <button class="menu-item" id="exportBtn">バックアップを書き出す<small>JSONファイルとして保存（「ファイル」アプリなどへ）</small></button>
     <button class="menu-item" id="importBtn">バックアップから復元<small>今のデータは置き換わります</small></button>
     <input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
-    <button class="menu-item" id="splashBtn">起動画像を設定<small>写真から選ぶと、起動時に3秒かけてフェードイン（この iPhone の中にだけ保存）</small></button>
-    <button class="menu-item" id="splashOff" hidden>起動画像を外す<small>元のアイコンのアニメーションに戻します</small></button>
     <button class="menu-item" id="jacketBtn">ジャケット画像を読み込む<small>専用ファイルを選ぶと、起動時にマス目で表示（この iPhone の中にだけ保存）</small></button>
-    <button class="menu-item" id="jacketOff" hidden>ジャケット画像を外す<small>起動画像（または元のアイコン）に戻します</small></button>
+    <button class="menu-item" id="jacketOff" hidden>ジャケット画像を外す<small>元のアイコンのアニメーションに戻します</small></button>
     <input type="file" id="jacketIn" accept=".json,application/json,text/plain" hidden>
-    <input type="file" id="imgIn" accept="image/*" hidden>
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 10</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 11</p>
   </div>
 </div>
 
@@ -712,12 +700,10 @@ $('#exportBtn').addEventListener('click', async () => {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
   done();
 });
-/* 起動画像 */
-const KEY_IMG = 'pocket-notes:splashImage';
-function hasSplash(){ try{ return !!localStorage.getItem(KEY_IMG); }catch(e){ return false; } }
+/* ジャケット画像 */
 const KEY_JK = 'pocket-notes:jackets';
 function hasJackets(){ try{ return !!localStorage.getItem(KEY_JK); }catch(e){ return false; } }
-function refreshSplashBtns(){ $('#splashOff').hidden = !hasSplash(); $('#jacketOff').hidden = !hasJackets(); }
+function refreshSplashBtns(){ $('#jacketOff').hidden = !hasJackets(); }
 $('#jacketBtn').addEventListener('click', () => { $('#jacketIn').value = ''; $('#jacketIn').click(); });
 $('#jacketIn').addEventListener('change', async e => {
   const f = e.target.files[0]; if(!f) return;
@@ -734,28 +720,6 @@ $('#jacketOff').addEventListener('click', () => {
   refreshSplashBtns(); toast('ジャケット画像を外しました');
 });
 $('#menuBtn').addEventListener('click', refreshSplashBtns);
-$('#splashBtn').addEventListener('click', () => { $('#imgIn').value = ''; $('#imgIn').click(); });
-$('#imgIn').addEventListener('change', async e => {
-  const f = e.target.files[0]; if(!f) return;
-  try{
-    const url = URL.createObjectURL(f);
-    const img = await new Promise((ok, ng) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ng; i.src = url; });
-    // iPhone の画面サイズ程度に縮めて保存（容量節約）
-    const scale = Math.min(1, 1290 / img.naturalWidth, 2796 / img.naturalHeight);
-    const c = document.createElement('canvas');
-    c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    URL.revokeObjectURL(url);
-    let data = c.toDataURL('image/jpeg', 0.85);
-    if(data.length > 2_000_000) data = c.toDataURL('image/jpeg', 0.6);
-    localStorage.setItem(KEY_IMG, data);
-    refreshSplashBtns(); toast('起動画像を設定しました。次回の起動から表示されます');
-  }catch(err){ toast('この画像は設定できませんでした'); }
-});
-$('#splashOff').addEventListener('click', () => {
-  try{ localStorage.removeItem(KEY_IMG); }catch(e){}
-  refreshSplashBtns(); toast('起動画像を外しました');
-});
 
 /* 名前の由来 */
 const KEY_ABOUT = 'pocket-notes:about';
