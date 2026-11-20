@@ -115,6 +115,19 @@ ol.sl li i{font-style:normal;color:var(--sub);font-variant-numeric:tabular-nums;
 .btn.danger.armed{background:var(--danger);color:#fff}
 .btn.ghost{background:transparent;color:var(--sub)}
 
+/* 全曲制覇 */
+.seg{display:flex;background:var(--card);border-radius:10px;padding:3px;margin:12px 0 0}
+.seg button{flex:1;border:none;background:none;border-radius:8px;padding:7px 0;font-size:14px;font-weight:600;color:var(--sub)}
+.seg button.on{background:var(--accent-soft);color:var(--accent)}
+.progress{background:var(--card);border-radius:12px;padding:12px 14px;margin:10px 0 0}
+.progress .p-top{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.progress b{font-size:22px;font-variant-numeric:tabular-nums}
+.progress .p-sub{color:var(--sub);font-size:13px}
+.progress .p-rest{margin-left:auto;color:var(--future);font-weight:700;font-size:14px}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--future));border-radius:3px}
+.album-h{font-size:12px;color:var(--sub);font-weight:600;margin:16px 4px 6px;display:flex;justify-content:space-between}
+.unheard{background:var(--card);border-radius:10px;padding:9px 14px;font-size:15px;overflow-wrap:anywhere}
 .search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;margin:12px 0 8px;font-size:16px}
 .song{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
 .song-head{width:100%;border:none;background:none;text-align:left;padding:10px 14px;display:flex;align-items:center;gap:12px}
@@ -241,6 +254,8 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
   </section>
 
   <section id="tabSongs" hidden>
+    <div class="seg" id="songSeg" hidden><button data-view="heard" class="on">聴いた曲</button><button data-view="unheard">まだ聴いていない曲</button></div>
+    <div class="progress" id="progress" hidden></div>
     <input class="search" id="q" type="search" placeholder="曲名で検索（部分一致）" autocomplete="off">
     <div class="list" id="songList"></div>
   </section>
@@ -297,13 +312,13 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <button class="menu-item" id="exportBtn">バックアップを書き出す<small>JSONファイルとして保存（「ファイル」アプリなどへ）</small></button>
     <button class="menu-item" id="importBtn">バックアップから復元<small>今のデータは置き換わります</small></button>
     <input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
-    <button class="menu-item" id="jacketBtn">ジャケット画像を読み込む<small>専用ファイルを選ぶと、起動時にマス目で表示（この iPhone の中にだけ保存）</small></button>
+    <button class="menu-item" id="jacketBtn">ファイルを読み込む<small>ジャケット画像・曲の一覧・orbitについて（この iPhone の中にだけ保存）</small></button>
     <button class="menu-item" id="jacketOff" hidden>ジャケット画像を外す<small>元のアイコンのアニメーションに戻します</small></button>
     <input type="file" id="jacketIn" accept=".json,application/json,text/plain" hidden>
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 17</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 18</p>
   </div>
 </div>
 
@@ -397,6 +412,29 @@ function stripNum(s){
   return t.trim();
 }
 
+/* ---------- 曲の一覧（全曲制覇用。iPhone の中にだけ保存） ---------- */
+const KEY_SONGS = 'pocket-notes:songs';
+let catalog = [], aliasOf = new Map(), catByKey = new Map();
+function baseKey(t){ return norm(splitVariant(t).base); }
+function loadCatalog(){
+  try{ const a = JSON.parse(localStorage.getItem(KEY_SONGS) || '[]'); catalog = Array.isArray(a) ? a : []; }catch(e){ catalog = []; }
+  aliasOf = new Map(); catByKey = new Map();
+  catalog.forEach(c => {
+    const k = baseKey(c.title); catByKey.set(k, c);
+    (c.aliases || []).forEach(a => { [baseKey(a), norm(a)].forEach(x => { if(x && x !== k) aliasOf.set(x, k); }); });
+  });
+}
+function setCatalog(list){
+  localStorage.setItem(KEY_SONGS, JSON.stringify(list.map(c => ({title:String(c.title), album:String(c.album || ''), year:c.year || null, type:c.type || 'song', aliases:Array.isArray(c.aliases) ? c.aliases.map(String) : []}))));
+  loadCatalog();
+}
+// 曲名 → 数えるときの共通キー（カッコ付き・別名は同じ曲にまとめる）
+function songKey(title){
+  const k = baseKey(title); if(!k) return '';
+  return aliasOf.get(k) || aliasOf.get(norm(title)) || k;
+}
+loadCatalog();
+
 /* ---------- 集計 ---------- */
 function attendedSorted(){ return shows.filter(s => !isPlan(s)).sort((a,b) => a.date.localeCompare(b.date) || a.day.localeCompare(b.day)); }
 function songStats(){
@@ -404,7 +442,7 @@ function songStats(){
   attendedSorted().forEach((s, i) => {
     const add = (title, part) => {
       const {base, variant} = splitVariant(title);
-      const k = norm(base); if(!k) return;
+      const k = songKey(title); if(!k) return;
       if(!map.has(k)) map.set(k, {names:new Map(), plays:[]});
       const e = map.get(k);
       e.names.set(base, (e.names.get(base) || 0) + 1);
@@ -415,7 +453,7 @@ function songStats(){
   });
   return [...map.entries()].map(([k, e]) => ({
     key:k,
-    name:[...e.names.entries()].sort((a,b) => b[1]-a[1])[0][0],
+    name:catByKey.get(k)?.title || [...e.names.entries()].sort((a,b) => b[1]-a[1])[0][0],
     plays:e.plays.slice().reverse(),
     count:e.plays.length,
     shows:new Set(e.plays.map(p => p.show.id)).size,
@@ -488,12 +526,42 @@ function showCard(s, nth, idx){
   </div>`;
 }
 
+let songView = 'heard';
 function renderSongs(stats){
   stats = stats || songStats();
   const q = norm($('#q').value || '');
+  const heardKeys = new Set(stats.map(s => s.key));
+  const targets = catalog.filter(c => (c.type || 'song') === 'song');
+  // 全曲制覇の進み具合（曲の一覧を読み込んだときだけ）
+  $('#songSeg').hidden = !targets.length;
+  $('#progress').hidden = !targets.length;
+  if(!targets.length) songView = 'heard';
+  if(targets.length){
+    const done = targets.filter(c => heardKeys.has(baseKey(c.title))).length;
+    const pct = Math.floor(done / targets.length * 100);
+    $('#progress').innerHTML = `<div class="p-top"><b>${done}</b><span class="p-sub">/ ${targets.length}曲 制覇（${pct}%）</span><span class="p-rest">${done === targets.length ? '全曲制覇！' : `あと${targets.length - done}曲`}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`;
+  }
+  document.querySelectorAll('#songSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === songView));
+
+  if(songView === 'unheard'){
+    const rest = targets.filter(c => !heardKeys.has(baseKey(c.title)) && (!q || baseKey(c.title).includes(q)));
+    if(!rest.length){ $('#songList').innerHTML = `<p class="empty">${q ? '見つかりませんでした。' : '全曲、生で聴きました！'}</p>`; return; }
+    let html = '', cur = null;
+    rest.forEach(c => {
+      if(c.album !== cur){
+        cur = c.album;
+        const n = rest.filter(x => x.album === cur).length;
+        html += `<div class="album-h"><span>${esc(cur)}${c.year ? `（${c.year}）` : ''}</span><span>${n}曲</span></div>`;
+      }
+      html += `<div class="unheard">${esc(c.title)}</div>`;
+    });
+    $('#songList').innerHTML = html;
+    return;
+  }
+
   const rankOf = new Map(); let prev = null, r = 0;
   stats.forEach((s,i) => { if(s.count !== prev){ r = i+1; prev = s.count; } rankOf.set(s.key, r); });
-  const list = q ? stats.filter(s => s.key.includes(q) || s.plays.some(p => norm(p.variant).includes(q))) : stats;
+  const list = q ? stats.filter(s => s.key.includes(q) || norm(s.name).includes(q) || s.plays.some(p => norm(p.variant).includes(q))) : stats;
   if(!stats.length){ $('#songList').innerHTML = '<p class="empty">参加済み公演のセトリを入力すると、ここに曲ごとの回数が表示されます。</p>'; return; }
   if(!list.length){ $('#songList').innerHTML = '<p class="empty">見つかりませんでした。</p>'; return; }
   $('#songList').innerHTML = list.map(s => `<div class="song${openSongs.has(s.key) ? ' open' : ''}" data-key="${esc(s.key)}">
@@ -501,6 +569,10 @@ function renderSongs(stats){
     <div class="song-body">${s.plays.map(p => `<div>${esc(fmtDate(p.show.date))} ${esc(p.show.tour)}${p.part === 'アンコール' ? '（アンコール）' : ''}${p.variant ? ' ' + esc(p.variant) : ''}<br><span class="sub">通算${p.nth}回目・${esc(p.show.venue || '')}${p.show.day ? ' ' + esc(p.show.day) : ''}</span></div>`).join('')}</div>
   </div>`).join('');
 }
+document.addEventListener('click', e => {
+  const b = e.target.closest('#songSeg button'); if(!b) return;
+  songView = b.dataset.view; renderSongs();
+});
 
 /* ---------- 操作 ---------- */
 document.addEventListener('click', e => {
@@ -584,7 +656,7 @@ $('#menuClose').addEventListener('click', () => closeSheet('#menuBg'));
 $('#menuBg').addEventListener('click', e => { if(e.target.id === 'menuBg') closeSheet('#menuBg'); });
 
 $('#exportBtn').addEventListener('click', async () => {
-  const json = JSON.stringify({app:'pocket-notes', version:1, exportedAt:new Date().toISOString(), about:getAbout(), shows}, null, 2);
+  const json = JSON.stringify({app:'pocket-notes', version:1, exportedAt:new Date().toISOString(), about:getAbout(), songs:catalog, shows}, null, 2);
   const name = `pocket-notes-backup-${today()}.json`;
   const file = new File([json], name, {type:'application/json'});
   const done = () => { try{ localStorage.setItem(KEY_BK, today()); }catch(e){} showLastBackup(); };
@@ -609,6 +681,7 @@ $('#jacketIn').addEventListener('change', async e => {
   try{
     const d = JSON.parse(await f.text());
     if(d && d.kind === 'about' && d.about){ setAbout(d.about); closeSheet('#menuBg'); toast('「orbitについて」を更新しました'); return; }
+    if(d && d.kind === 'songs' && Array.isArray(d.songs) && d.songs.length){ setCatalog(d.songs); render(); closeSheet('#menuBg'); toast(`曲の一覧（${d.songs.filter(x => (x.type || 'song') === 'song').length}曲）を読み込みました`); return; }
     const imgs = (d && d.kind === 'jackets' && Array.isArray(d.images)) ? d.images.filter(x => typeof x === 'string' && x.startsWith('data:image/')) : [];
     if(!imgs.length) throw new Error('format');
     localStorage.setItem(KEY_JK, JSON.stringify(imgs));
@@ -659,6 +732,7 @@ $('#fileIn').addEventListener('change', async e => {
     if(!confirm(`${next.length}公演を読み込みます。今のデータ（${shows.length}公演）は置き換わります。よろしいですか？`)) return;
     shows = next; openShows.clear(); openSongs.clear();
     if(d && d.about && typeof d.about === 'object') setAbout(d.about);
+    if(d && Array.isArray(d.songs) && d.songs.length){ try{ setCatalog(d.songs); }catch(e){} render(); }
     save(); render(); closeSheet('#menuBg'); toast(`${next.length}公演を復元しました`);
   }catch(err){ toast('このファイルは読み込めませんでした'); }
 });
