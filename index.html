@@ -169,12 +169,14 @@ h1{cursor:pointer}
 @keyframes splashOut{to{opacity:0;visibility:hidden}}
 body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-delay:calc(var(--intro-delay,.65s) + min(var(--i,0),8) * 50ms)}
 /* ジャケットのマス目（4列×7段） */
-.splash.jackets{background:#000;gap:20px;overflow:hidden;animation:splashOut .5s ease 3.1s forwards}
-.jgrid{--cell:min(calc((100vw - 12px) / 4), calc((100vh - 110px) / 7));display:grid;grid-template-columns:repeat(4,var(--cell));grid-auto-rows:var(--cell);gap:4px}
+.splash.jackets{background:#000;overflow:hidden;animation:splashOut .5s ease 3.1s forwards}
+.jgrid{--cell:min(calc((100vw - 12px) / 4), calc((100vh - 40px) / 7));display:grid;grid-template-columns:repeat(4,var(--cell));grid-auto-rows:var(--cell);gap:4px;animation:gridDim .8s ease 2.1s both}
+@keyframes gridDim{to{filter:brightness(.42)}}
 .jt{background:#111 center/cover no-repeat;border-radius:3px;opacity:0;transform:scale(.6);animation:tileIn .5s cubic-bezier(.2,.8,.3,1.1) both}
 @keyframes tileIn{to{opacity:1;transform:none}}
 @font-face{font-family:'Comfortaa';src:url(fonts/comfortaa-400-latin.woff2) format('woff2');font-weight:400;font-style:normal;font-display:block}
-.jlabel{color:#fff;font-family:'Comfortaa',-apple-system,sans-serif;font-size:26px;font-weight:400;letter-spacing:.3em;padding-left:.3em;min-height:1em;animation:fadeUp .6s ease 2.3s both}
+/* orbit の文字はマス目の中央に重ねる */
+.jlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#fff;font-family:'Comfortaa',-apple-system,sans-serif;font-size:34px;font-weight:400;letter-spacing:.3em;padding-left:.3em;text-shadow:0 2px 18px rgba(0,0,0,.85),0 0 4px rgba(0,0,0,.6);animation:fadeUp .6s ease 2.3s both}
 /* 案ごとの現れ方 */
 .js-stars .jt{animation-name:twinkle;animation-duration:.6s}
 @keyframes twinkle{0%{opacity:0;transform:scale(.3);filter:brightness(3)}60%{opacity:1;transform:scale(1.08);filter:brightness(1.6)}100%{opacity:1;transform:none;filter:none}}
@@ -393,7 +395,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 13</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 14</p>
   </div>
 </div>
 
