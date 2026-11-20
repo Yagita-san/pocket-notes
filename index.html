@@ -109,9 +109,19 @@ label.f>span{display:block;font-size:12px;color:var(--sub);font-weight:600;margi
 .hbtns{display:flex;gap:8px}
 .iconbtn.add{background:var(--accent);color:#fff;font-size:24px;line-height:1}
 [hidden]{display:none!important}
+/* 起動アニメーション */
+.splash{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;animation:splashOut .3s ease .6s forwards}
+.splash img{width:88px;height:88px;border-radius:22px;box-shadow:0 6px 20px rgba(0,0,0,.15);animation:pop .5s cubic-bezier(.2,.9,.3,1.25) both}
+.splash span{font-weight:700;font-size:18px;letter-spacing:.06em;animation:fadeUp .4s ease .15s both}
+@keyframes pop{from{opacity:0;transform:scale(.6) rotate(-8deg)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes splashOut{to{opacity:0;visibility:hidden}}
+body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-delay:calc(.65s + min(var(--i,0),8) * 50ms)}
+@media (prefers-reduced-motion: reduce){.splash{display:none}body.intro .stat,body.intro .show{animation:none}}
 </style>
 </head>
-<body>
+<body class="intro">
+<div class="splash" id="splash"><img src="icon-180.png" alt=""><span>pocket-notes</span></div>
 <div class="wrap">
   <header>
     <h1>pocket-notes</h1>
@@ -122,9 +132,9 @@ label.f>span{display:block;font-size:12px;color:var(--sub);font-weight:600;margi
   </header>
 
   <div class="stats">
-    <div class="stat"><b id="stDone">0</b><span>参加回数</span></div>
-    <div class="stat"><b id="stPlan">0</b><span>参加予定</span></div>
-    <div class="stat"><b id="stSongs">0</b><span>生で聴いた曲</span></div>
+    <div class="stat" style="--i:0"><b id="stDone">0</b><span>参加回数</span></div>
+    <div class="stat" style="--i:1"><b id="stPlan">0</b><span>参加予定</span></div>
+    <div class="stat" style="--i:2"><b id="stSongs">0</b><span>生で聴いた曲</span></div>
   </div>
 
   <section id="tabShows">
@@ -192,7 +202,7 @@ label.f>span{display:block;font-size:12px;color:var(--sub);font-weight:600;margi
     <input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 3</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 4</p>
   </div>
 </div>
 
@@ -302,26 +312,41 @@ const wd = d => '日月火水木金土'[new Date(d + 'T00:00:00').getDay()] || '
 const fmtDate = d => d ? `${d.replace(/-/g,'/')}（${wd(d)}）` : '';
 const openShows = new Set(), openSongs = new Set();
 
+/* 起動時だけ数字をカウントアップ */
+const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+let intro = !reduceMotion;
+function setNum(sel, v){
+  const el = $(sel);
+  if(!intro || v === 0){ el.textContent = v; return; }
+  el.textContent = 0;
+  const start = performance.now() + 650, dur = 600;
+  const step = now => {
+    const t = Math.min(1, Math.max(0, (now - start) / dur));
+    el.textContent = Math.round(v * (1 - Math.pow(1 - t, 3)));
+    if(t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function endIntro(){ intro = false; document.body.classList.remove('intro'); $('#splash')?.remove(); }
+
 function render(){
   const done = attendedSorted();
   const plan = shows.filter(isPlan).sort((a,b) => a.date.localeCompare(b.date) || a.day.localeCompare(b.day));
   const stats = songStats();
-  $('#stDone').textContent = done.length;
-  $('#stPlan').textContent = plan.length;
-  $('#stSongs').textContent = stats.length;
+  setNum('#stDone', done.length); setNum('#stPlan', plan.length); setNum('#stSongs', stats.length);
 
   $('#planWrap').hidden = !plan.length;
   $('#doneWrap').hidden = !done.length;
   $('#noShows').hidden = !!shows.length;
-  $('#planList').innerHTML = plan.map(s => showCard(s, null)).join('');
-  $('#doneList').innerHTML = done.map((s,i) => [s,i+1]).reverse().map(([s,n]) => showCard(s, n)).join('');
+  $('#planList').innerHTML = plan.map((s,i) => showCard(s, null, i + 3)).join('');
+  $('#doneList').innerHTML = done.map((s,i) => [s,i+1]).reverse().map(([s,n],i) => showCard(s, n, plan.length + i + 3)).join('');
 
   renderSongs(stats);
   $('#tourList').innerHTML = [...new Set(shows.map(s => s.tour).filter(Boolean))].map(v => `<option value="${esc(v)}">`).join('');
   $('#venueList').innerHTML = [...new Set(shows.map(s => s.venue).filter(Boolean))].map(v => `<option value="${esc(v)}">`).join('');
 }
 
-function showCard(s, nth){
+function showCard(s, nth, idx){
   const days = Math.round((new Date(s.date+'T00:00:00') - new Date(today()+'T00:00:00')) / 86400000);
   const badge = nth
     ? `<div class="badge">通算<b>${nth}</b>回目</div>`
@@ -329,7 +354,7 @@ function showCard(s, nth){
   const list = (arr, prefix) => arr.length
     ? `<ol class="sl">${arr.map((t,i) => `<li><i>${prefix}${i+1}</i><span>${esc(t)}</span></li>`).join('')}</ol>`
     : `<div class="empty">未入力</div>`;
-  return `<div class="show${openShows.has(s.id) ? ' open' : ''}" data-id="${esc(s.id)}">
+  return `<div class="show${openShows.has(s.id) ? ' open' : ''}" style="--i:${idx}" data-id="${esc(s.id)}">
     <button class="show-head" data-act="toggle">
       ${badge}
       <div class="show-main">
@@ -482,6 +507,9 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').ca
 
 window.__test = {parseSetlist, norm, splitVariant};
 render();
+intro = false;
+setTimeout(endIntro, 1800);
+$('#splash')?.addEventListener('click', endIntro);
 })();
 </script>
 </body>
