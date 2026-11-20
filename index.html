@@ -187,6 +187,17 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
 @keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}40%{opacity:1}to{opacity:1;transform:none}}
 .js-zoom .jt,.js-orbit .jt,.js-bang .jt,.js-meteor .jt{opacity:1;transform:none;animation:none}
 .js-focus .jt{animation-name:focusIn;animation-duration:1s;animation-timing-function:ease-out}
+/* orbit の出し方の案 */
+.lt-a .jt,.lt-d .jt{animation-duration:.8s}
+.lt-a .jgrid{animation-delay:1.3s}
+.lt-a .jlabel,.lt-d .jlabel{animation-delay:1.5s}
+.lt-b .jlabel{animation:labelFocus 2.7s ease-out .2s both}
+@keyframes labelFocus{0%{opacity:0;filter:blur(18px);transform:scale(1.15)}35%{opacity:.55}100%{opacity:1;filter:none;transform:none}}
+.lt-c .jlabel{animation-delay:2.1s}
+.lt-c .jgrid{animation:gridDim .8s ease 2.1s both,gridOut .5s ease 2.8s forwards}
+.lt-d .jgrid{animation:gridDim .7s ease 1.3s both,gridOut .5s ease 2.8s forwards}
+@keyframes gridOut{to{opacity:0}}
+.splash.jackets.lt-c,.splash.jackets.lt-d{animation:splashOut .5s ease 3.3s forwards}
 @keyframes focusIn{from{opacity:0;transform:scale(1.25);filter:blur(14px) brightness(.4)}50%{opacity:1}to{opacity:1;transform:none;filter:none}}
 .js-zoom .jgrid{will-change:transform}
 @media (prefers-reduced-motion: reduce){.splash{display:none}body.intro .stat,body.intro .show{animation:none}}
@@ -241,7 +252,9 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
       order = cells.slice();
     }
     var rank = []; order.forEach(function(cell, r){ rank[cell] = r; });
-    var STEP = style === 'flip' ? 70 : style === 'focus' ? 65 : 80;
+    var LT = window.__labelTiming || localStorage.getItem('pocket-notes:labelTiming') || 'd';   // orbit の出し方
+    var fast = LT === 'a' || LT === 'd';
+    var STEP = style === 'flip' ? 70 : style === 'focus' ? (fast ? 40 : 65) : (fast ? 50 : 80);
 
     var grid = document.createElement('div'); grid.className = 'jgrid';
     for(var n = 0; n < N; n++){
@@ -253,7 +266,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     var label = document.createElement('div'); label.className = 'jlabel';
     try{ label.textContent = (JSON.parse(localStorage.getItem('pocket-notes:about') || '{}').name) || 'orbit'; }catch(e){ label.textContent = 'orbit'; }
     sp.innerHTML = ''; sp.appendChild(grid); sp.appendChild(label);
-    sp.classList.add('jackets', 'js-' + style);
+    sp.classList.add('jackets', 'js-' + style, 'lt-' + LT);
 
     if(style === 'zoom'){
       // 1枚を画面いっぱいに映してから、引いていくと全体のマス目が見える
@@ -304,7 +317,8 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
         el.animate(frames, opt);
       });
     }
-    document.body.style.setProperty('--intro-delay', '3.6s'); window.__introMs = 3600;
+    var late = LT === 'c' || LT === 'd';
+    document.body.style.setProperty('--intro-delay', late ? '3.8s' : '3.6s'); window.__introMs = late ? 3800 : 3600;
     return;
   }
 }catch(e){} })();
@@ -395,7 +409,7 @@ body.intro .stat,body.intro .show{animation:fadeUp .45s ease both;animation-dela
     <p class="note" id="lastBackup" style="margin:8px 4px 16px"></p>
     <button class="menu-item" id="aboutBtn">orbitについて<small>この名前に込めた想い</small></button>
     <button class="btn ghost" id="menuClose" style="width:100%">閉じる</button>
-    <p class="note" style="text-align:center;margin:12px 0 0">version 14</p>
+    <p class="note" style="text-align:center;margin:12px 0 0">version 15</p>
   </div>
 </div>
 

@@ -1,6 +1,6 @@
 // オフラインでも開けるようにするための仕組み
 // 方針: まずネットから最新を取りに行き、3秒で返事がなければ保存済みのコピーを使う
-const CACHE = 'pocket-notes-v14';
+const CACHE = 'pocket-notes-v15';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './fonts/comfortaa-400-latin.woff2'];
 const TIMEOUT_MS = 3000;
 
