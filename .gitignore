@@ -1,0 +1,7 @@
+# 個人データ（公開しない）
+private/
+*.json
+!manifest.webmanifest
+
+# 作業用フォルダ
+.claude/
